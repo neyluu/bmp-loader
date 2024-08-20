@@ -1,0 +1,3 @@
+G:/C++/bmp-to-ascii/cmake-build-debug/CMakeFiles/bmp_to_ascii.dir
+G:/C++/bmp-to-ascii/cmake-build-debug/CMakeFiles/edit_cache.dir
+G:/C++/bmp-to-ascii/cmake-build-debug/CMakeFiles/rebuild_cache.dir
