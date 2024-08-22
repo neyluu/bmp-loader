@@ -86,12 +86,14 @@ void readBMPfile(struct BMPfile* fileData, FILE* f)
     {
         for(int j = 0; j < fileData->width; j++)
         {
-            fread(&r, 1, 1, f);
-            fread(&g, 1, 1, f);
             fread(&b, 1, 1, f);
+            fread(&g, 1, 1, f);
+            fread(&r, 1, 1, f);
             fileData->image[i][j].r = r;
             fileData->image[i][j].g = g;
             fileData->image[i][j].b = b;
+
+            std::cout << int(r) << ' ' << int(g) << ' ' << int(b) << std::endl;
         }
         fseek(f, fileData->width, SEEK_CUR);
     }
