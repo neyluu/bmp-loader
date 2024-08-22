@@ -1,2 +1,2 @@
-# bmp-to-ascii
+# bmp-loader
  
