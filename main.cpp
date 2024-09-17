@@ -4,7 +4,7 @@
 
 struct BMPfile {
     //Header
-    char signature[3] = {'\n'};
+    char signature[3] = {'\0'};
     int fileSize;
     char reserved[4];
     int dataOffset;
@@ -37,12 +37,14 @@ void printBMPfileData(struct BMPfile file);
 void loadImage(FILE *f, struct pixel3*** image);
 void freeImagePixel3(struct pixel3** image, int height);
 
+int calculatePadding(unsigned int cols);
+
 int main ()
 {
     BMPfile fileData;
 
     FILE * file;
-    file = fopen ("smallgradient.bmp", "rb");
+    file = fopen ("24.bmp", "rb");
     if (file == nullptr)
     {
         std::cout << "Cannot open file";
@@ -75,11 +77,15 @@ void readBMPfile(struct BMPfile* fileData, FILE* f)
     fread(&fileData->colorsUsed, 4, 1, f);
     fread(&fileData->colorsImportant, 4, 1, f);
 
+    if(fileData->compression != 0) return;
+
     fileData->image = new struct pixel3*[fileData->height];
     for(int i = 0; i < fileData->height; i++)
     {
         fileData->image[i] = new struct pixel3;
     }
+
+    std::cout << "pos: " << ftell(f) << std::endl;
 
     unsigned char r, g, b;
     for(int i = 0; i < fileData->height; i++)
@@ -95,7 +101,11 @@ void readBMPfile(struct BMPfile* fileData, FILE* f)
 
             std::cout << int(r) << ' ' << int(g) << ' ' << int(b) << std::endl;
         }
-        fseek(f, fileData->width, SEEK_CUR);
+        std::cout << std::endl;
+
+        int padding = calculatePadding(fileData->width);
+        std::cout << padding << std::endl;
+        fseek(f, padding, SEEK_CUR);
     }
 }
 
@@ -131,16 +141,43 @@ void printBMPfileData(struct BMPfile file)
     std::cout << "Colors used: " << file.colorsUsed << std::endl;
     std::cout << "Colors important: " << file.colorsImportant << std::endl;
 
+    //TODO reading into array based on width -> bottom-up or top-down
+    //TODO https://learn.microsoft.com/en-us/windows/win32/api/wingdi/ns-wingdi-bitmapinfoheader
     for(int i = 0; i < file.height; i++)
     {
         for(int j = 0; j < file.width; j++)
         {
-            std::cout   << "RGB: "
-                        << int(file.image[i][j].r) << ' '
-                        << int(file.image[i][j].g) << ' '
-                        << int(file.image[i][j].b) << ' ';
+            std::cout << "RGB: ";
+
+            std::cout.width( 3 );
+            std::cout << int(file.image[i][j].r) << ' ';
+
+            std::cout.width( 3 );
+            std::cout << int(file.image[i][j].g) << ' ';
+
+            std::cout.width( 3 );
+            std::cout << int(file.image[i][j].b) << ' ';
+
+            std::cout << "| ";
         }
         std::cout << std::endl;
     }
+}
+
+int calculatePadding(unsigned int cols)
+{
+    int readedBytes = 3 * cols;
+    int padding = 1;
+
+    if(readedBytes % 4 == 0) return 0;
+    else
+    {
+        while((readedBytes + padding) % 4 != 0)
+        {
+            padding++;
+        }
+    }
+
+    return padding;
 }
 
