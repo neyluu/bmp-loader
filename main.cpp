@@ -34,17 +34,22 @@ struct pixel3
 
 void readBMPfile(struct BMPfile* fileData, FILE* f);
 void printBMPfileData(struct BMPfile file);
-void loadImage(FILE *f, struct pixel3*** image);
 void freeImagePixel3(struct pixel3** image, int height);
 
 int calculatePadding(unsigned int cols);
+void loadImage1 (FILE *f, struct BMPfile *data);
+void loadImage2 (FILE *f, struct BMPfile *data);
+void loadImage4 (FILE *f, struct BMPfile *data);
+void loadImage8 (FILE *f, struct BMPfile *data);
+void loadImage16(FILE *f, struct BMPfile *data);
+void loadImage24(FILE *f, struct BMPfile *data);
 
 int main ()
 {
     BMPfile fileData;
 
     FILE * file;
-    file = fopen ("24.bmp", "rb");
+    file = fopen("24.bmp", "rb");
     if (file == nullptr)
     {
         std::cout << "Cannot open file";
@@ -85,33 +90,102 @@ void readBMPfile(struct BMPfile* fileData, FILE* f)
         fileData->image[i] = new struct pixel3;
     }
 
-    std::cout << "pos: " << ftell(f) << std::endl;
+    switch (fileData->bitCount) {
+        case 1:
+            loadImage1(f, nullptr);
+            break;
+        case 2:
+            loadImage2(f, fileData);
+            break;
+        case 4:
+            loadImage4(f, fileData);
+            break;
+        case 8:
+            loadImage8(f, fileData);
+            break;
+        case 16:
+            loadImage16(f, fileData);
+            break;
+        case 24:
+            loadImage24(f, fileData);
+            break;
+        default:
+            break;
+    }
+}
 
+void loadImage1(FILE *f, struct BMPfile *data)
+{
+    
+}
+void loadImage2(FILE *f, struct BMPfile *data)
+{
+    
+}
+void loadImage4(FILE *f, struct BMPfile *data)
+{
+    
+}
+void loadImage8(FILE *f, struct BMPfile *data)
+{
     unsigned char r, g, b;
-    for(int i = 0; i < fileData->height; i++)
+
+    for(int i = 0; i < data->height; i++)
     {
-        for(int j = 0; j < fileData->width; j++)
+        for(int j = 0; j < data->width; j++)
         {
             fread(&b, 1, 1, f);
             fread(&g, 1, 1, f);
             fread(&r, 1, 1, f);
-            fileData->image[i][j].r = r;
-            fileData->image[i][j].g = g;
-            fileData->image[i][j].b = b;
-
-            std::cout << int(r) << ' ' << int(g) << ' ' << int(b) << std::endl;
+            fseek(f, 1, SEEK_CUR);
+            data->image[i][j].r = r;
+            data->image[i][j].g = g;
+            data->image[i][j].b = b;
         }
-        std::cout << std::endl;
-
-        int padding = calculatePadding(fileData->width);
-        std::cout << padding << std::endl;
-        fseek(f, padding, SEEK_CUR);
     }
 }
-
-void loadImage(FILE *f, struct pixel3*** image)
+void loadImage16(FILE *f, struct BMPfile *data)
 {
+    
+}
+void loadImage24(FILE *f, struct BMPfile *data)
+{
+    unsigned char r, g, b;
 
+    if(data->height < 0)
+    {
+        for(int i = 0; i < data->width; i++)
+        {
+            for(int j = 0; j < data->width; j++)
+            {
+                fread(&b, 1, 1, f);
+                fread(&g, 1, 1, f);
+                fread(&r, 1, 1, f);
+                data->image[i][j].r = r;
+                data->image[i][j].g = g;
+                data->image[i][j].b = b;
+            }
+
+            fseek(f, calculatePadding(data->width), SEEK_CUR);
+        }
+    }
+    else
+    {
+        for(int i = (data->height - 1); i >= 0; i--)
+        {
+            for(int j = 0; j < data->width; j++)
+            {
+                fread(&b, 1, 1, f);
+                fread(&g, 1, 1, f);
+                fread(&r, 1, 1, f);
+                data->image[i][j].r = r;
+                data->image[i][j].g = g;
+                data->image[i][j].b = b;
+            }
+
+            fseek(f, calculatePadding(data->width), SEEK_CUR);
+        }
+    }
 }
 
 void freeImagePixel3(struct pixel3** image, int height)
@@ -143,7 +217,7 @@ void printBMPfileData(struct BMPfile file)
 
     //TODO reading into array based on width -> bottom-up or top-down
     //TODO https://learn.microsoft.com/en-us/windows/win32/api/wingdi/ns-wingdi-bitmapinfoheader
-    for(int i = 0; i < file.height; i++)
+    for(int i = 0; i < abs(file.height); i++)
     {
         for(int j = 0; j < file.width; j++)
         {
