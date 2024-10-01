@@ -5,7 +5,7 @@
 
 int main ()
 {
-    BMPfile fileData;
+    BMP fileData;
 
     FILE * file;
     file = fopen("88.bmp", "rb");
@@ -19,6 +19,7 @@ int main ()
     printBMPfileData(fileData);
 
     freeImagePixel3(fileData.image, fileData.height);
+    freeColorTablePixel4(fileData.colorTable, file)
     fclose(file);
 }
 

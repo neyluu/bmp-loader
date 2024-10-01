@@ -1,10 +1,11 @@
 #include <cstdio>
 #include <iostream>
 #include <cstdlib>
+#include <cmath>
 
 #include "bmp.h"
 
-void readBMPfile(struct BMPfile* fileData, FILE* f)
+void readBMP(struct BMP* fileData, FILE* f)
 {
     //Reading File Header
     fread(&fileData->signature, 1, 2, f);
@@ -57,59 +58,27 @@ void readBMPfile(struct BMPfile* fileData, FILE* f)
     }
 }
 
-void loadImage1(FILE *f, struct BMPfile *data)
+void loadImage1(FILE *f, struct BMP *data)
 {
 
 }
-void loadImage2(FILE *f, struct BMPfile *data)
+void loadImage2(FILE *f, struct BMP *data)
 {
 
 }
-void loadImage4(FILE *f, struct BMPfile *data)
+void loadImage4(FILE *f, struct BMP *data)
 {
     unsigned char r, g, b;
 
-//    for(int i = 0; i < data->height; i++)
-//    {
-//        for(int j = 0; j < data->width; j++)
-//        {
-//
-//        }
-//    }
-    while(!feof(f))
-    {
-        fread(&r, 1, 1, f);
-        std::cout << ftell(f) << ' ' << int(r) << std::endl;
-    }
-    std::cout << std::endl;
+    readColorTable(f, data);
+
+
 }
-void loadImage8(FILE *f, struct BMPfile *data)
+void loadImage8(FILE *f, struct BMP *data)
 {
     unsigned char r, g, b, a;
 
-    //Reading color palette
-    int colors;
-    if(data->colorsUsed == 0) colors = 256;
-    else colors = data->colorsUsed;
-
-    data->colorPalette = new struct pixel4*[colors];
-    for(int i = 0; i < colors; i++)
-    {
-        data->colorPalette[i] = new struct pixel4;
-    }
-
-    for(int i = 0; i < colors; i++)
-    {
-        fread(&b, 1, 1, f);
-        fread(&g, 1, 1, f);
-        fread(&r, 1, 1, f);
-        fread(&a, 1, 1, f);
-        data->colorPalette[i]->r = r;
-        data->colorPalette[i]->g = g;
-        data->colorPalette[i]->b = b;
-        data->colorPalette[i]->a = a;
-//        std::cout << i << ". " << int(r) << ' ' << int(g) << ' ' << int(b) << ' ' << int(a) << std::endl;
-    }
+    readColorTable(f, data);
 
     //Reading pixel storage
     unsigned char idx;
@@ -124,9 +93,9 @@ void loadImage8(FILE *f, struct BMPfile *data)
             {
                 fread(&idx, 1, 1, f);
                 index = int(idx);
-                data->image[i][j].r = data->colorPalette[index]->r;
-                data->image[i][j].g = data->colorPalette[index]->g;
-                data->image[i][j].b = data->colorPalette[index]->b;
+                data->image[i][j].r = data->colorTable[index].r;
+                data->image[i][j].g = data->colorTable[index].g;
+                data->image[i][j].b = data->colorTable[index].b;
             }
         }
     }
@@ -138,18 +107,18 @@ void loadImage8(FILE *f, struct BMPfile *data)
             {
                 fread(&idx, 1, 1, f);
                 index = int(idx);
-                data->image[i][j].r = data->colorPalette[index]->r;
-                data->image[i][j].g = data->colorPalette[index]->g;
-                data->image[i][j].b = data->colorPalette[index]->b;
+                data->image[i][j].r = data->colorTable[index].r;
+                data->image[i][j].g = data->colorTable[index].g;
+                data->image[i][j].b = data->colorTable[index].b;
             }
         }
     }
 }
-void loadImage16(FILE *f, struct BMPfile *data)
+void loadImage16(FILE *f, struct BMP *data)
 {
 
 }
-void loadImage24(FILE *f, struct BMPfile *data)
+void loadImage24(FILE *f, struct BMP *data)
 {
     unsigned char r, g, b;
 
@@ -188,10 +157,32 @@ void loadImage24(FILE *f, struct BMPfile *data)
         }
     }
 }
-
-void loadImage32(FILE *f, struct BMPfile *data)
+void loadImage32(FILE *f, struct BMP *data)
 {
 
+}
+
+void readColorTable(FILE *f, struct BMP *data)
+{
+    unsigned char r, g, b, a;
+    int colors;
+    if(data->colorsUsed == 0) colors = int(pow(2, data->bitCount));
+    else colors = data->colorsUsed;
+
+    data->colorTable = new struct pixel4[colors];
+
+    for(int i = 0; i < colors; i++)
+    {
+        fread(&b, 1, 1, f);
+        fread(&g, 1, 1, f);
+        fread(&r, 1, 1, f);
+        fread(&a, 1, 1, f);
+        data->colorTable[i].r = r;
+        data->colorTable[i].g = g;
+        data->colorTable[i].b = b;
+        data->colorTable[i].a = a;
+//        std::cout << i << ". " << int(r) << ' ' << int(g) << ' ' << int(b) << ' ' << int(a) << std::endl;
+    }
 }
 
 void freeImagePixel3(struct pixel3** image, int height)
@@ -202,8 +193,16 @@ void freeImagePixel3(struct pixel3** image, int height)
     }
     delete[] image;
 }
+void freeColorTablePixel4(struct pixel4 **image, int height)
+{
+    for(int i = 0; i < height; i++)
+    {
+        delete[] image[i];
+    }
+    delete[] image;
+}
 
-void printBMPfileData(struct BMPfile file)
+void printBMPData(struct BMP file)
 {
     std::cout << "--------------------------------------" << std::endl;
     std::cout << "Signature: " << file.signature << std::endl;

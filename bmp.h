@@ -3,7 +3,7 @@
 
 #include <iostream>
 
-struct BMPfile {
+struct BMP {
     //Header
     std::string signature;
     int fileSize;
@@ -23,8 +23,7 @@ struct BMPfile {
     int colorsUsed;
     int colorsImportant;
 
-    struct pixel4** colorPalette;
-
+    struct pixel4* colorTable;
     struct pixel3** image;
 };
 
@@ -43,17 +42,20 @@ struct pixel4
     unsigned char a;
 };
 
-void readBMPfile(struct BMPfile* fileData, FILE* f);
-void printBMPfileData(struct BMPfile file);
+void readBMPfile(struct BMP* fileData, FILE* f);
+void printBMPfileData(struct BMP file);
 void freeImagePixel3(struct pixel3** image, int height);
+void freeColorTablePixel4(struct pixel4 *image, int height);
 
 int calculatePadding(unsigned int cols);
-void loadImage1 (FILE *f, struct BMPfile *data);
-void loadImage2 (FILE *f, struct BMPfile *data);
-void loadImage4 (FILE *f, struct BMPfile *data);
-void loadImage8 (FILE *f, struct BMPfile *data);
-void loadImage16(FILE *f, struct BMPfile *data);
-void loadImage24(FILE *f, struct BMPfile *data);
-void loadImage32(FILE *f, struct BMPfile *data);
+void loadImage1 (FILE *f, struct BMP *data);
+void loadImage2 (FILE *f, struct BMP *data);
+void loadImage4 (FILE *f, struct BMP *data);
+void loadImage8 (FILE *f, struct BMP *data);
+void loadImage16(FILE *f, struct BMP *data);
+void loadImage24(FILE *f, struct BMP *data);
+void loadImage32(FILE *f, struct BMP *data);
+
+void readColorTable(FILE *f, struct BMP *data);
 
 #endif //BMP_TO_ASCII_BMP_H
