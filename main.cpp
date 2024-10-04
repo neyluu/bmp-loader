@@ -8,7 +8,7 @@ int main ()
     BMP fileData;
 
     FILE * file;
-    file = fopen("88.bmp", "rb");
+    file = fopen("4.bmp", "rb");
     if (file == nullptr)
     {
         std::cout << "Cannot open file";
@@ -19,7 +19,7 @@ int main ()
     printBMPfileData(fileData);
 
     freeImagePixel3(fileData.image, fileData.height);
-    freeColorTablePixel4(fileData.colorTable, file)
+    delete[] fileData.colorTable;
     fclose(file);
 }
 

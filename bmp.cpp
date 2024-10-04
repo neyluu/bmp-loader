@@ -5,7 +5,7 @@
 
 #include "bmp.h"
 
-void readBMP(struct BMP* fileData, FILE* f)
+void readBMPfile(struct BMP* fileData, FILE* f)
 {
     //Reading File Header
     fread(&fileData->signature, 1, 2, f);
@@ -72,7 +72,27 @@ void loadImage4(FILE *f, struct BMP *data)
 
     readColorTable(f, data);
 
+    unsigned char byte;
+    int pixel1, pixel2;
 
+    fseek(f, data->dataOffset, SEEK_SET);
+
+    for(int i = 0; i < data->height; i++)
+    {
+        for(int j = 0; j < data->width; j += 2)
+        {
+            fread(&byte, 1, 1, f);
+            byteTo2Nums(byte, &pixel1, &pixel2);
+
+            data->image[i][j].r = data->colorTable[pixel1].r;
+            data->image[i][j].g = data->colorTable[pixel1].g;
+            data->image[i][j].b = data->colorTable[pixel1].b;
+
+            data->image[i][j + 1].r = data->colorTable[pixel2].r;
+            data->image[i][j + 1].g = data->colorTable[pixel2].g;
+            data->image[i][j + 1].b = data->colorTable[pixel2].b;
+        }
+    }
 }
 void loadImage8(FILE *f, struct BMP *data)
 {
@@ -185,6 +205,28 @@ void readColorTable(FILE *f, struct BMP *data)
     }
 }
 
+void byteTo2Nums(unsigned char byte, int *num1, int *num2)
+{
+    *num1 = 0;
+    int counter = 0;
+
+    for(int i = 4; i <= 7; i++)
+    {
+        if((byte >> i) & 1)
+        {
+            *num1 |= (1 << counter);
+        }
+        counter++;
+    }
+
+    *num2 = byte;
+    for(int i = 7; i >= 4; i--)
+    {
+        *num2 &= ~(1 << i);
+    }
+}
+
+
 void freeImagePixel3(struct pixel3** image, int height)
 {
     for(int i = 0; i < height; i++)
@@ -193,16 +235,8 @@ void freeImagePixel3(struct pixel3** image, int height)
     }
     delete[] image;
 }
-void freeColorTablePixel4(struct pixel4 **image, int height)
-{
-    for(int i = 0; i < height; i++)
-    {
-        delete[] image[i];
-    }
-    delete[] image;
-}
 
-void printBMPData(struct BMP file)
+void printBMPfileData(struct BMP file)
 {
     std::cout << "--------------------------------------" << std::endl;
     std::cout << "Signature: " << file.signature << std::endl;
