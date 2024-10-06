@@ -1,3 +1,0 @@
-C:/Users/Dawid Ryplewicz/Documents/_PROJEKTY/Programowanie/C++/bmp-loader/cmake-build-debug/CMakeFiles/bmp_to_ascii.dir
-C:/Users/Dawid Ryplewicz/Documents/_PROJEKTY/Programowanie/C++/bmp-loader/cmake-build-debug/CMakeFiles/edit_cache.dir
-C:/Users/Dawid Ryplewicz/Documents/_PROJEKTY/Programowanie/C++/bmp-loader/cmake-build-debug/CMakeFiles/rebuild_cache.dir
