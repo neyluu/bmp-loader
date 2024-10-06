@@ -32,6 +32,8 @@
 *.app
 
 # User-specific stuff
+.idea/
+
 .idea/**/workspace.xml
 .idea/**/tasks.xml
 .idea/**/usage.statistics.xml
@@ -119,3 +121,24 @@ compile_commands.json
 CTestTestfile.cmake
 _deps
 CMakeUserPresets.json
+.idea/.name
+.idea/bmp-to-ascii.iml
+.idea/material_theme_project_new.xml
+.idea/misc.xml
+.idea/modules.xml
+.idea/vcs.xml
+cmake-build-debug/.cmake/api/v1/query/cache-v2
+cmake-build-debug/.cmake/api/v1/query/cmakeFiles-v1
+cmake-build-debug/.cmake/api/v1/query/codemodel-v2
+cmake-build-debug/.cmake/api/v1/query/toolchains-v1
+cmake-build-debug/.cmake/api/v1/reply/cache-v2-7954742f0b918c6e9381.json
+cmake-build-debug/.cmake/api/v1/reply/cmakeFiles-v1-0175db22ea1c78fc5e8d.json
+cmake-build-debug/.cmake/api/v1/reply/codemodel-v2-9cf7dc746a87f15d4559.json
+cmake-build-debug/.cmake/api/v1/reply/directory-.-Debug-d0094a50bb2071803777.json
+cmake-build-debug/.cmake/api/v1/reply/index-2024-10-06T13-01-21-0736.json
+cmake-build-debug/.cmake/api/v1/reply/target-bmp_to_ascii-Debug-4ffa73055f504e545b5f.json
+cmake-build-debug/.cmake/api/v1/reply/toolchains-v1-f1b2b3b9642b509dfa7c.json
+cmake-build-debug/.ninja_deps
+cmake-build-debug/.ninja_log
+cmake-build-debug/bmp_to_ascii.cbp
+cmake-build-debug/build.ninja
