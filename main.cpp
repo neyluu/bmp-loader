@@ -8,8 +8,8 @@ int main ()
     BMP fileData;
 
     FILE * file;
-    file = fopen("4.bmp", "rb");
-    if (file == nullptr)
+    file = fopen("images/4.bmp", "rb");
+    if(file == nullptr)
     {
         std::cout << "Cannot open file";
         return 1;
