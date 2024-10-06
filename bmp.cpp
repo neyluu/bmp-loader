@@ -77,13 +77,36 @@ void loadImage4(FILE *f, struct BMP *data)
 
     fseek(f, data->dataOffset, SEEK_SET);
 
+    int readedBytes;
+
     if(data->height < 0)
     {
+        for(int i = 0; i < data->height; i++)
+        {
+            readedBytes = 0;
+            for(int j = 0; j < data->width; j += 2)
+            {
+                fread(&byte, 1, 1, f);
+                readedBytes++;
 
+                byteTo2Nums(byte, &pixel1, &pixel2);
+
+                data->image[i][j].r = data->colorTable[pixel1].r;
+                data->image[i][j].g = data->colorTable[pixel1].g;
+                data->image[i][j].b = data->colorTable[pixel1].b;
+
+                data->image[i][j + 1].r = data->colorTable[pixel2].r;
+                data->image[i][j + 1].g = data->colorTable[pixel2].g;
+                data->image[i][j + 1].b = data->colorTable[pixel2].b;
+                byte = 0;
+            }
+
+            fseek(f, calculatePadding(readedBytes), SEEK_CUR);
+        }
     }
     else
     {
-        int readedBytes;
+
         for(int i = (data->height - 1); i >= 0; i--)
         {
             readedBytes = 0;
@@ -93,7 +116,6 @@ void loadImage4(FILE *f, struct BMP *data)
                 readedBytes++;
 
                 byteTo2Nums(byte, &pixel1, &pixel2);
-//                std::cout << pixel1 << ' ' << pixel2 << std::endl;
 
                 data->image[i][j].r = data->colorTable[pixel1].r;
                 data->image[i][j].g = data->colorTable[pixel1].g;
