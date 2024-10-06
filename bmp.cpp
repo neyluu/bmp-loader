@@ -77,17 +77,17 @@ void loadImage4(FILE *f, struct BMP *data)
 
     fseek(f, data->dataOffset, SEEK_SET);
 
-    int readedBytes;
+    int loadedBytes;
 
     if(data->height < 0)
     {
         for(int i = 0; i < data->height; i++)
         {
-            readedBytes = 0;
+            loadedBytes = 0;
             for(int j = 0; j < data->width; j += 2)
             {
                 fread(&byte, 1, 1, f);
-                readedBytes++;
+                loadedBytes++;
 
                 byteTo2Nums(byte, &pixel1, &pixel2);
 
@@ -101,7 +101,7 @@ void loadImage4(FILE *f, struct BMP *data)
                 byte = 0;
             }
 
-            fseek(f, calculatePadding(readedBytes), SEEK_CUR);
+            fseek(f, calculatePadding(loadedBytes), SEEK_CUR);
         }
     }
     else
@@ -109,11 +109,11 @@ void loadImage4(FILE *f, struct BMP *data)
 
         for(int i = (data->height - 1); i >= 0; i--)
         {
-            readedBytes = 0;
+            loadedBytes = 0;
             for(int j = 0; j < data->width; j += 2)
             {
                 fread(&byte, 1, 1, f);
-                readedBytes++;
+                loadedBytes++;
 
                 byteTo2Nums(byte, &pixel1, &pixel2);
 
@@ -127,7 +127,7 @@ void loadImage4(FILE *f, struct BMP *data)
                 byte = 0;
             }
 
-            fseek(f, calculatePadding(readedBytes), SEEK_CUR);
+            fseek(f, calculatePadding(loadedBytes), SEEK_CUR);
         }
     }
 }
@@ -316,15 +316,15 @@ void printBMPfileData(struct BMP file)
     }
 }
 
-int calculatePadding(unsigned int cols)
+int calculatePadding(int cols)
 {
-    int readedBytes = 3 * cols;
+    int loadedBytes = 3 * abs(cols);
     int padding = 1;
 
-    if(readedBytes % 4 == 0) return 0;
+    if(loadedBytes % 4 == 0) return 0;
     else
     {
-        while((readedBytes + padding) % 4 != 0)
+        while((loadedBytes + padding) % 4 != 0)
         {
             padding++;
         }

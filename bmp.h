@@ -46,7 +46,7 @@ void readBMPfile(struct BMP* fileData, FILE* f);
 void printBMPfileData(struct BMP file);
 void freeImagePixel3(struct pixel3** image, int height);
 
-int calculatePadding(unsigned int cols);
+int calculatePadding(int cols);
 void loadImage1 (FILE *f, struct BMP *data);
 void loadImage2 (FILE *f, struct BMP *data);
 void loadImage4 (FILE *f, struct BMP *data);
