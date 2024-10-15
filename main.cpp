@@ -1,7 +1,7 @@
 #include <cstdio>
 #include <iostream>
 
-#include "bmp.h"
+#include "bmp/bmp.h"
 
 int main ()
 {

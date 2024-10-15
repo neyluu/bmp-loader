@@ -4,6 +4,7 @@
 #include <cmath>
 
 #include "bmp.h"
+#include "utils.h"
 
 void readBMPfile(struct BMP* fileData, FILE* f)
 {
@@ -89,7 +90,7 @@ void loadImage4(FILE *f, struct BMP *data)
                 fread(&byte, 1, 1, f);
                 loadedBytes++;
 
-                byteTo2Nums(byte, &pixel1, &pixel2);
+                splitByte(byte, &pixel1, &pixel2);
 
                 data->image[i][j].r = data->colorTable[pixel1].r;
                 data->image[i][j].g = data->colorTable[pixel1].g;
@@ -115,7 +116,7 @@ void loadImage4(FILE *f, struct BMP *data)
                 fread(&byte, 1, 1, f);
                 loadedBytes++;
 
-                byteTo2Nums(byte, &pixel1, &pixel2);
+                splitByte(byte, &pixel1, &pixel2);
 
                 data->image[i][j].r = data->colorTable[pixel1].r;
                 data->image[i][j].g = data->colorTable[pixel1].g;
@@ -242,28 +243,6 @@ void readColorTable(FILE *f, struct BMP *data)
     }
 }
 
-void byteTo2Nums(unsigned char byte, int *num1, int *num2)
-{
-    *num1 = 0;
-    int counter = 0;
-
-    for(int i = 4; i <= 7; i++)
-    {
-        if((byte >> i) & 1)
-        {
-            *num1 |= (1 << counter);
-        }
-        counter++;
-    }
-
-    *num2 = byte;
-    for(int i = 7; i >= 4; i--)
-    {
-        *num2 &= ~(1 << i);
-    }
-}
-
-
 void freeImagePixel3(struct pixel3** image, int height)
 {
     for(int i = 0; i < height; i++)
@@ -316,19 +295,3 @@ void printBMPfileData(struct BMP file)
     }
 }
 
-int calculatePadding(int cols)
-{
-    int loadedBytes = 3 * abs(cols);
-    int padding = 1;
-
-    if(loadedBytes % 4 == 0) return 0;
-    else
-    {
-        while((loadedBytes + padding) % 4 != 0)
-        {
-            padding++;
-        }
-    }
-
-    return padding;
-}

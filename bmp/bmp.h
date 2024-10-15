@@ -46,7 +46,6 @@ void readBMPfile(struct BMP* fileData, FILE* f);
 void printBMPfileData(struct BMP file);
 void freeImagePixel3(struct pixel3** image, int height);
 
-int calculatePadding(int cols);
 void loadImage1 (FILE *f, struct BMP *data);
 void loadImage2 (FILE *f, struct BMP *data);
 void loadImage4 (FILE *f, struct BMP *data);
@@ -56,7 +55,5 @@ void loadImage24(FILE *f, struct BMP *data);
 void loadImage32(FILE *f, struct BMP *data);
 
 void readColorTable(FILE *f, struct BMP *data);
-
-void byteTo2Nums(unsigned char byte, int *num1, int *num2);
 
 #endif //BMP_TO_ASCII_BMP_H
