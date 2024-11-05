@@ -8,4 +8,6 @@ add_executable(bmp_to_ascii
         bmp/bmp.cpp
         bmp/bmp.h
         bmp/utils.cpp
+        bmp/load.cpp
+        bmp/load.h
 )

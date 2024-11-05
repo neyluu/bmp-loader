@@ -3,8 +3,10 @@
 
 #include <iostream>
 
-struct BMP {
-    //Header
+class BMP
+{
+private:
+public:
     std::string signature;
     int fileSize;
     char reserved[4];
@@ -25,6 +27,16 @@ struct BMP {
 
     struct pixel4* colorTable;
     struct pixel3** image;
+
+    ~BMP();
+
+    //--- Methods ---
+    int load(const std::string& filename);
+    int save(const std::string& filename);
+
+
+    void printHeader();
+    void printImage();
 };
 
 struct pixel3
@@ -41,19 +53,5 @@ struct pixel4
     unsigned char b;
     unsigned char a;
 };
-
-void readBMPfile(struct BMP* fileData, FILE* f);
-void printBMPfileData(struct BMP file);
-void freeImagePixel3(struct pixel3** image, int height);
-
-void loadImage1 (FILE *f, struct BMP *data);
-void loadImage2 (FILE *f, struct BMP *data);
-void loadImage4 (FILE *f, struct BMP *data);
-void loadImage8 (FILE *f, struct BMP *data);
-void loadImage16(FILE *f, struct BMP *data);
-void loadImage24(FILE *f, struct BMP *data);
-void loadImage32(FILE *f, struct BMP *data);
-
-void readColorTable(FILE *f, struct BMP *data);
 
 #endif //BMP_TO_ASCII_BMP_H
