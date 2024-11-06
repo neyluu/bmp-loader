@@ -7,7 +7,7 @@ int main ()
 
     BMP file;
 
-    file.load("../images/4.bmp");
+    file.load("../images/1.bmp");
     file.printHeader();
     file.printImage();
 }

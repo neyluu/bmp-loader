@@ -17,7 +17,7 @@ int calculatePadding(int cols)
     return padding;
 }
 
-void splitByte(unsigned char byte, int *num1, int *num2)
+void splitByte(uint8_t byte, int *num1, int *num2)
 {
     *num1 = 0;
     int counter = 0;
@@ -37,7 +37,7 @@ void splitByte(unsigned char byte, int *num1, int *num2)
         *num2 &= ~(1 << i);
     }
 }
-void splitByte(unsigned char byte, int *num1, int *num2, int *num3, int *num4)
+void splitByte(uint8_t byte, int *num1, int *num2, int *num3, int *num4)
 {
     *num1 = 0;
     *num2 = 0;
@@ -56,7 +56,7 @@ void splitByte(unsigned char byte, int *num1, int *num2, int *num3, int *num4)
     if((byte >> 1) & 1) *num4 |= (1 << 1);
     if((byte >> 0) & 1) *num4 |= (1 << 0);
 }
-void splitByte(unsigned char byte, int (&nums)[8])
+void splitByte(uint8_t byte, int (&nums)[8])
 {
     for(int i = 0; i < 8; i++)
     {

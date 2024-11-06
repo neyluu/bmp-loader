@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <cmath>
+#include <cstdint>
 
 #include "bmp.h"
 
@@ -15,5 +16,6 @@ void loadImage24(FILE *f, class BMP& data);
 void loadImage32(FILE *f, class BMP& data);
 
 void readColorTable(FILE *f, class BMP& data);
+void getDirection(int height, int& i, int& change);
 
 #endif //BMP_TO_ASCII_LOAD_H
