@@ -14,4 +14,6 @@ add_executable(bmp_to_ascii
         bmp/utils.cpp
         bmp/load.cpp
         bmp/load.h
+        tests/tests.cpp
+        tests/tests.h
 )

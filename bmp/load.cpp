@@ -35,7 +35,6 @@ void loadImage1 (FILE *f, BMP& data)
 
         for(int j = 0; j < bytesPerRow; j++)
         {
-            std::cout << "pos: " << ftell(f) << std::endl;
             fread(&byte, 1, 1, f);
             splitByte(byte, pixels);
 
