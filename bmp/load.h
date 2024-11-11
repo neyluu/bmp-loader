@@ -7,15 +7,15 @@
 
 #include "bmp.h"
 
-void loadImage1 (FILE *f, class BMP& data);
-void loadImage2 (FILE *f, class BMP& data);
-void loadImage4 (FILE *f, class BMP& data);
-void loadImage8 (FILE *f, class BMP& data);
-void loadImage16(FILE *f, class BMP& data);
-void loadImage24(FILE *f, class BMP& data);
-void loadImage32(FILE *f, class BMP& data);
+void loadImage1 (FILE *f, BMP& data);
+void loadImage2 (FILE *f, BMP& data);
+void loadImage4 (FILE *f, BMP& data);
+void loadImage8 (FILE *f, BMP& data);
+void loadImage16(FILE *f, BMP& data);
+void loadImage24(FILE *f, BMP& data);
+void loadImage32(FILE *f, BMP& data);
 
-void readColorTable(FILE *f, class BMP& data);
+void readColorTable(FILE *f, BMP& data);
 void getDirection(int height, int& i, int& change);
 
 #endif //BMP_TO_ASCII_LOAD_H

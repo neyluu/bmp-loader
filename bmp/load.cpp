@@ -1,41 +1,61 @@
 #include "load.h"
 #include "utils.h"
 
-void loadImage1 (FILE *f, class BMP& data)
+void loadImage1 (FILE *f, BMP& data)
 {
     readColorTable(f, data);
     fseek(f, data.dataOffset, SEEK_SET);
 
     uint8_t byte;
     int pixels[8];
-    int loadedBytes;
 
     int loadedRows = 0;
-    int i, change;
-    getDirection(data.height, i, change);
+    int row, col, change;
+    getDirection(data.height, row, change);
+
+    int bytesPerRow;
+    int bitRest = data.width % 8;
+    bool aligned; // true - every row need full X bytes, false - from last byte only few bits are needed
+
+    if(bitRest == 0)
+    {
+        aligned = true;
+        bytesPerRow = data.width / 8;
+    }
+    else
+    {
+        aligned = false;
+        bytesPerRow = floor(data.width / 8) + 1;
+    }
 
     while(loadedRows++ < data.height)
     {
-        loadedBytes = 0;
-        for(int j = 0; j< data.width; j += 8)
-        {
-            fread(&byte, 1, 1, f);
-            loadedBytes++;
+        int pixelsToSet;
+        col = 0;
 
+        for(int j = 0; j < bytesPerRow; j++)
+        {
+            std::cout << "pos: " << ftell(f) << std::endl;
+            fread(&byte, 1, 1, f);
             splitByte(byte, pixels);
 
-            for(int k = 0; k < 8; k++)
+            if(j < bytesPerRow - 1 || aligned) pixelsToSet = 8;
+            else pixelsToSet = bitRest;
+
+            for(int k = 0; k < pixelsToSet; k++)
             {
-                data.image[i][j + k].r = data.colorTable[pixels[k]].r;
-                data.image[i][j + k].g = data.colorTable[pixels[k]].g;
-                data.image[i][j + k].b = data.colorTable[pixels[k]].b;
+                data.image[row][col].r = data.colorTable[pixels[k]].r;
+                data.image[row][col].g = data.colorTable[pixels[k]].g;
+                data.image[row][col].b = data.colorTable[pixels[k]].b;
+                col++;
             }
         }
 
-        i += change;
+        fseek(f, calculatePadding(bytesPerRow), SEEK_CUR);
+        row += change;
     }
 }
-void loadImage2 (FILE *f, class BMP& data)
+void loadImage2 (FILE *f, BMP& data)
 {
     readColorTable(f, data);
     fseek(f, data.dataOffset, SEEK_SET);
@@ -75,10 +95,11 @@ void loadImage2 (FILE *f, class BMP& data)
             data.image[i][j + 3].b = data.colorTable[pixel4].b;
         }
 
+        fseek(f, calculatePadding(loadedBytes), SEEK_CUR);
         i += change;
     }
 }
-void loadImage4 (FILE *f, class BMP& data)
+void loadImage4 (FILE *f, BMP& data)
 {
     readColorTable(f, data);
     fseek(f, data.dataOffset, SEEK_SET);
@@ -115,7 +136,7 @@ void loadImage4 (FILE *f, class BMP& data)
         i += change;
     }
 }
-void loadImage8 (FILE *f, class BMP& data)
+void loadImage8 (FILE *f, BMP& data)
 {
     readColorTable(f, data);
     fseek(f, data.dataOffset, SEEK_SET);
@@ -140,11 +161,11 @@ void loadImage8 (FILE *f, class BMP& data)
         i += change;
     }
 }
-void loadImage16(FILE *f, class BMP& data)
+void loadImage16(FILE *f, BMP& data)
 {
 
 }
-void loadImage24(FILE *f, class BMP& data)
+void loadImage24(FILE *f, BMP& data)
 {
     uint8_t r, g, b;
 
@@ -164,16 +185,16 @@ void loadImage24(FILE *f, class BMP& data)
             data.image[i][j].b = b;
         }
 
-        fseek(f, calculatePadding(data.width), SEEK_CUR);
+        fseek(f, calculatePadding(data.width * 3), SEEK_CUR);
         i += change;
     }
 }
-void loadImage32(FILE *f, class BMP& data)
+void loadImage32(FILE *f, BMP& data)
 {
 
 }
 
-void readColorTable(FILE *f, class BMP& data)
+void readColorTable(FILE *f, BMP& data)
 {
     unsigned char r, g, b, a;
     int colors;

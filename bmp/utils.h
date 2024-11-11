@@ -3,7 +3,7 @@
 
 #include <cstdint>
 
-int calculatePadding(int cols);
+int calculatePadding(int bytes);
 
 void splitByte(uint8_t byte, int *num1, int *num2);
 void splitByte(uint8_t byte, int *num1, int *num2, int *num3, int *num4);

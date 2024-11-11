@@ -2,14 +2,13 @@
 
 #include <iostream>
 
-int calculatePadding(int cols)
+int calculatePadding(int bytes)
 {
-    int loadedBytes = 3 * abs(cols);
     int padding = 1;
 
-    if(loadedBytes % 4 == 0) return 0;
+    if(bytes % 4 == 0) return 0;
 
-    while((loadedBytes + padding) % 4 != 0)
+    while((bytes + padding) % 4 != 0)
     {
         padding++;
     }

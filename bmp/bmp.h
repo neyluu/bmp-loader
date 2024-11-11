@@ -7,7 +7,7 @@ class BMP
 {
 private:
 public:
-    std::string signature;
+    char signature[3];
     int fileSize;
     char reserved[4];
     int dataOffset;
@@ -30,7 +30,6 @@ public:
 
     ~BMP();
 
-    //--- Methods ---
     int load(const std::string& filename);
     int save(const std::string& filename);
 
