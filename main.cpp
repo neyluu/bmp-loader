@@ -8,7 +8,6 @@ int main ()
     startTests();
 
 
-
     BMP file;
 
     file.load("../images/1_20x20.bmp");

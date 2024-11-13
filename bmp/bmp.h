@@ -7,7 +7,7 @@ class BMP
 {
 private:
 public:
-    char signature[3];
+    char signature[3] = {0};
     int fileSize;
     char reserved[4];
     int dataOffset;

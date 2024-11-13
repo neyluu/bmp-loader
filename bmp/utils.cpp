@@ -2,6 +2,11 @@
 
 #include <iostream>
 
+// Function calculating padding needed to align data after each loaded row
+// INPUT:
+// bytes - number of bytes read during loading row
+// OUTPUT:
+// bytesToSkip - number of bytes to skip to align data
 int calculatePadding(int bytes)
 {
     int padding = 1;
