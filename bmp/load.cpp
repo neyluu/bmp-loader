@@ -199,7 +199,6 @@ void readColorTable(FILE *f, BMP& data)
     int colors;
     if(data.colorsUsed == 0) colors = int(pow(2, data.bitCount));
     else colors = data.colorsUsed;
-
     data.colorTable = new struct pixel4[colors];
 
     for(int i = 0; i < colors; i++)

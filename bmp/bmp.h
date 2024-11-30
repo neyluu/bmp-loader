@@ -2,32 +2,49 @@
 #define BMP_TO_ASCII_BMP_H
 
 #include <iostream>
+#include <cstdint>
+
+struct pixel3
+{
+    uint8_t r;
+    uint8_t g;
+    uint8_t b;
+};
+
+struct pixel4
+{
+    uint8_t r;
+    uint8_t g;
+    uint8_t b;
+    uint8_t a;
+};
 
 class BMP
 {
 private:
 public:
-    char signature[3] = {0};
-    int fileSize;
-    char reserved[4];
-    int dataOffset;
+    char signature[3];
+    int32_t fileSize;
+    uint8_t reserved[4];
+    int32_t dataOffset;
 
     //Info Header
-    int size;
-    int width;
-    int height;
-    short int planes;
-    short int bitCount;
-    int compression;
-    int imageSize;
-    int XpixelsPerM;
-    int YpixelsPerM;
-    int colorsUsed;
-    int colorsImportant;
+    int32_t size;
+    int32_t width;
+    int32_t height;
+    int16_t planes;
+    int16_t bitCount;
+    int32_t compression;
+    int32_t imageSize;
+    int32_t XpixelsPerM;
+    int32_t YpixelsPerM;
+    int32_t colorsUsed;
+    int32_t colorsImportant;
 
     struct pixel4* colorTable;
     struct pixel3** image;
 
+    BMP();
     ~BMP();
 
     int load(const std::string& filename);
@@ -36,21 +53,6 @@ public:
 
     void printHeader();
     void printImage();
-};
-
-struct pixel3
-{
-    unsigned char r;
-    unsigned char g;
-    unsigned char b;
-};
-
-struct pixel4
-{
-    unsigned char r;
-    unsigned char g;
-    unsigned char b;
-    unsigned char a;
 };
 
 #endif //BMP_TO_ASCII_BMP_H

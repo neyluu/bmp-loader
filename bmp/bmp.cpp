@@ -6,13 +6,39 @@
 #include "bmp.h"
 #include "load.h"
 
+#include <cstring>
+
+BMP::BMP()
+{
+    memset(signature, 0, 3);
+    fileSize = 0;
+    memset(reserved, 0, 4);
+    dataOffset = 0;
+    size = 0;
+    width = 0;
+    height = 0;
+    planes = 0;
+    bitCount = 0;
+    compression = 0;
+    imageSize = 0;
+    XpixelsPerM = 0;
+    YpixelsPerM = 0;
+    colorsUsed = 0;
+    colorsImportant = 0;
+    colorTable = nullptr;
+    image = nullptr;
+}
+
 BMP::~BMP()
 {
-    for(int i = 0; i < height; i++)
+    if(image != nullptr)
     {
-        delete[] image[i];
+        for(int i = 0; i < height; i++)
+        {
+            delete[] image[i];
+        }
+        delete[] image;
     }
-    delete[] image;
 
     delete[] colorTable;
 }
@@ -50,24 +76,24 @@ int BMP::load(const std::string& filename)
     image = new struct pixel3*[height];
     for(int i = 0; i < height; i++)
     {
-        image[i] = new struct pixel3;
+        image[i] = new struct pixel3[width];
     }
 
     switch (bitCount) {
         case 1:
-            loadImage1(f, *this);
+            loadImage1 (f, *this);
             break;
         case 2:
-            loadImage2(f, *this);
+            loadImage2 (f, *this);
             break;
         case 4:
-            loadImage4(f, *this);
+            loadImage4 (f, *this);
             break;
         case 8:
-            loadImage8(f, *this);
+            loadImage8 (f, *this);
             break;
         case 16:
-            loadImage16(f, *this);
+            loadImage16 (f, *this);
             break;
         case 24:
             loadImage24(f, *this);
