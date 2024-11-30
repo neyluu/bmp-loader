@@ -4,7 +4,9 @@ project(bmp_to_ascii)
 set(CMAKE_CXX_STANDARD 26)
 
 add_compile_options(
-
+    -g
+#    -pedantic
+    -fno-elide-constructors
 )
 
 add_executable(bmp_to_ascii
