@@ -10,21 +10,22 @@
 
 BMP::BMP()
 {
-    memset(signature, 0, 3);
-    fileSize = 0;
-    memset(reserved, 0, 4);
-    dataOffset = 0;
-    size = 0;
-    width = 0;
-    height = 0;
-    planes = 0;
-    bitCount = 0;
-    compression = 0;
-    imageSize = 0;
-    XpixelsPerM = 0;
-    YpixelsPerM = 0;
-    colorsUsed = 0;
-    colorsImportant = 0;
+    memset(headerFile.signature, 0, 3);
+    headerFile.fileSize = 0;
+    memset(headerFile.reserved, 0, 4);
+    headerFile.dataOffset = 0;
+
+    headerDIB.size = 0;
+    headerDIB.width = 0;
+    headerDIB.height = 0;
+    headerDIB.planes = 0;
+    headerDIB.bitCount = 0;
+    headerDIB.compression = 0;
+    headerDIB.imageSize = 0;
+    headerDIB.XpixelsPerM = 0;
+    headerDIB.YpixelsPerM = 0;
+    headerDIB.colorsUsed = 0;
+    headerDIB.colorsImportant = 0;
     colorTable = nullptr;
     image = nullptr;
 }
@@ -33,7 +34,7 @@ BMP::~BMP()
 {
     if(image != nullptr)
     {
-        for(int i = 0; i < height; i++)
+        for(int i = 0; i < headerDIB.height; i++)
         {
             delete[] image[i];
         }
@@ -47,62 +48,86 @@ int BMP::load(const std::string& filename)
 {
     FILE *f = fopen(filename.c_str(), "rb");
     if(f == nullptr) return 1;
+    file = f;
 
-    //Reading File Header
-    fread(&signature, 1, 2, f);
-    fread(&fileSize, 4, 1, f);
-    fread(reserved, 4, 1, f);
-    fread(&dataOffset, 4, 1, f);
+    int res;
 
-    //Reading DIB header
-    fread(&size, 4, 1, f);
-    fread(&width, 4, 1, f);
-    fread(&height, 4, 1, f);
-    fread(&planes, 2, 1, f);
-    fread(&bitCount, 2, 1, f);
-    fread(&compression, 4, 1, f);
-    fread(&imageSize, 4, 1, f);
-    fread(&XpixelsPerM, 4, 1, f);
-    fread(&YpixelsPerM, 4, 1, f);
-    fread(&colorsUsed, 4, 1, f);
-    fread(&colorsImportant, 4, 1, f);
+    res = loadHeaderFile();
+    if(res == 1)
+    {
+        fclose(file);
+        return 2;
+    }
+    res = loadHeaderDIB();
+    if(res == 1)
+    {
+        fclose(file);
+        return 3;
+    }
 
-    if(compression != 0)
+    // TODO TMP
+    if(headerDIB.compression != 0)
     {
         fclose(f);
         return 1;
     }
 
-    image = new struct pixel3*[height];
-    for(int i = 0; i < height; i++)
+    image = new struct pixel3*[headerDIB.height];
+    for(int i = 0; i < headerDIB.height; i++)
     {
-        image[i] = new struct pixel3[width];
+        image[i] = new struct pixel3[headerDIB.width];
     }
 
-    switch (bitCount) {
+    switch (headerDIB.bitCount) {
         case 1:
-            loadImage1 (f, *this);
+            loadImage1 (file, *this);
             break;
         case 2:
-            loadImage2 (f, *this);
+            loadImage2 (file, *this);
             break;
         case 4:
-            loadImage4 (f, *this);
+            loadImage4 (file, *this);
             break;
         case 8:
-            loadImage8 (f, *this);
+            loadImage8 (file, *this);
             break;
         case 16:
-            loadImage16 (f, *this);
+            loadImage16 (file, *this);
             break;
         case 24:
-            loadImage24(f, *this);
+            loadImage24(file, *this);
             break;
         default:
             break;
     }
 
-    fclose(f);
+    fclose(file);
+    return 0;
+}
+
+int BMP::loadHeaderFile()
+{
+    int res;
+
+    res = fread(headerFile.signature, 1, 2, file);
+    if(res != 2) return 1;
+
+    res = fread(&headerFile.fileSize, 4, 1, file);
+    if(res != 1) return 1;
+
+    res = fread(headerFile.reserved, 4, 1, file);
+    if(res != 1) return 1;
+
+    res = fread(&headerFile.dataOffset, 4, 1, file);
+    if(res != 1) return 1;
+
+    return 0;
+}
+
+int BMP::loadHeaderDIB()
+{
+    int res = fread(&headerDIB, sizeof(struct headerDIB), 1, file);
+    if(res != 1) return 1;
     return 0;
 }
 
@@ -115,21 +140,21 @@ int BMP::save(const std::string& filename)
 void BMP::printHeader()
 {
     std::cout << "--------------------------------------" << std::endl;
-    std::cout << "Signature: " << signature << std::endl;
-    std::cout << "File size: " << fileSize << std::endl;
-    std::cout << "Data offset: " << dataOffset << std::endl;
+    std::cout << "Signature: "      << headerFile.signature << std::endl;
+    std::cout << "File size: "      << headerFile.fileSize << std::endl;
+    std::cout << "Data offset: "    << headerFile.dataOffset << std::endl;
 
-    std::cout << "Size: " << size << std::endl;
-    std::cout << "Width: " << width << std::endl;
-    std::cout << "Height: " << height << std::endl;
-    std::cout << "Planes: " << planes << std::endl;
-    std::cout << "Bit count: " << bitCount << std::endl;
-    std::cout << "Compression: " << compression << std::endl;
-    std::cout << "Image size: " << imageSize << std::endl;
-    std::cout << "X pixels per meter: " << XpixelsPerM << std::endl;
-    std::cout << "Y pixels per meter: " << YpixelsPerM << std::endl;
-    std::cout << "Colors used: " << colorsUsed << std::endl;
-    std::cout << "Colors important: " << colorsImportant << std::endl;
+    std::cout << "Size: "               << headerDIB.size << std::endl;
+    std::cout << "Width: "              << headerDIB.width << std::endl;
+    std::cout << "Height: "             << headerDIB.height << std::endl;
+    std::cout << "Planes: "             << headerDIB.planes << std::endl;
+    std::cout << "Bit count: "          << headerDIB.bitCount << std::endl;
+    std::cout << "Compression: "        << headerDIB.compression << std::endl;
+    std::cout << "Image size: "         << headerDIB.imageSize << std::endl;
+    std::cout << "X pixels per meter: " << headerDIB.XpixelsPerM << std::endl;
+    std::cout << "Y pixels per meter: " << headerDIB.YpixelsPerM << std::endl;
+    std::cout << "Colors used: "        << headerDIB.colorsUsed << std::endl;
+    std::cout << "Colors important: "   << headerDIB.colorsImportant << std::endl;
     std::cout << "--------------------------------------" << std::endl;
 }
 
@@ -138,9 +163,9 @@ void BMP::printImage()
     //TODO reading into array based on width -> bottom-up or top-down
     //TODO https://learn.microsoft.com/en-us/windows/win32/api/wingdi/ns-wingdi-bitmapinfoheader
 
-    for(int i = 0; i < abs(height); i++)
+    for(int i = 0; i < abs(headerDIB.height); i++)
     {
-        for(int j = 0; j < width; j++)
+        for(int j = 0; j < headerDIB.width; j++)
         {
             std::cout.width( 3 );
             std::cout << int(image[i][j].r) << ' ';

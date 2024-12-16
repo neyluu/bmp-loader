@@ -9,7 +9,7 @@ int main ()
 
     BMP file;
 
-    int res = file.load("../images/1_20x20.bmp");
+    int res = file.load("../images/1.bmp");
 //    int res = file.load("../images/1.bmp");
     if(res != 0)
     {
@@ -20,7 +20,7 @@ int main ()
     file.printHeader();
     file.printImage();
 
-    T_imageToFile("../images/test_output.txt", file.image, file.width, file.height);
+    T_imageToFile("../images/test_output.txt", file.image, file.headerDIB.width, file.headerDIB.height);
 
 }
 
