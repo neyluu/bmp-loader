@@ -151,12 +151,14 @@ void loadImage8 (FILE *f, BMP& data)
         for(int j = 0; j < data.headerDIB.width; j++)
         {
             fread(&index, 1, 1, f);
+
             data.image[i][j].r = data.colorTable[index].r;
             data.image[i][j].g = data.colorTable[index].g;
             data.image[i][j].b = data.colorTable[index].b;
             index = 0;
         }
 
+        fseek(f, calculatePadding(data.headerDIB.width), SEEK_CUR);
         i += change;
     }
 }

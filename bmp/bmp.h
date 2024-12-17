@@ -51,14 +51,22 @@ class BMP
 {
 private:
     FILE *file;
-    int loadHeaderFile();
-    int loadHeaderDIB();
-public:
+
 // Function loading headerFile
 // OUTPUT:
 // errorCode
 //  0 - OK
 //  1 - loading failed
+    int loadHeaderFile();
+
+// Function loading headerDIB
+// OUTPUT:
+// errorCode
+//  0 - OK
+//  1 - loading failed
+    int loadHeaderDIB();
+public:
+
     struct headerFile headerFile;
     struct headerDIB headerDIB;
 
@@ -82,6 +90,7 @@ public:
 
 
     void printHeader();
+    void printColorTable();
     void printImage();
 };
 

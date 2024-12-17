@@ -128,6 +128,10 @@ int BMP::loadHeaderDIB()
 {
     int res = fread(&headerDIB, sizeof(struct headerDIB), 1, file);
     if(res != 1) return 1;
+
+    const int headerFileSize = 14;
+    fseek(file, headerFileSize + headerDIB.size, SEEK_SET);
+
     return 0;
 }
 
@@ -156,6 +160,18 @@ void BMP::printHeader()
     std::cout << "Colors used: "        << headerDIB.colorsUsed << std::endl;
     std::cout << "Colors important: "   << headerDIB.colorsImportant << std::endl;
     std::cout << "--------------------------------------" << std::endl;
+}
+
+void BMP::printColorTable()
+{
+    std::cout << "Color table:" << std::endl;
+    for(int i = 0; i < headerDIB.colorsUsed; i++)
+    {
+        std::cout << i << ". "  << int(colorTable[i].r) << ' '
+                                << int(colorTable[i].g) << ' '
+                                << int(colorTable[i].b) << std::endl;
+    }
+    std::cout << std::endl;
 }
 
 void BMP::printImage()
