@@ -49,21 +49,24 @@ void TEST_loadingHelp(std::string filename)
         exit(1);
     }
 
-    int expectedR, expectedG, expectedB;
+    int expectedR, expectedG, expectedB, expectedA;
 
     for(int i = 0; i < file.headerDIB.height; i++)
     {
         for(int j = 0; j < file.headerDIB.width; j++)
         {
-            fscanf(expected, "%d %d %d\n", &expectedR, &expectedG, &expectedB);
+            if(file.headerDIB.bitCount != 32) fscanf(expected, "%d %d %d\n", &expectedR, &expectedG, &expectedB);
+            else fscanf(expected, "%d %d %d %d\n", &expectedR, &expectedG, &expectedB, &expectedA);
+
             if(expectedR != file.image[i][j].r ||
                expectedG != file.image[i][j].g ||
-               expectedB != file.image[i][j].b
+               expectedB != file.image[i][j].b ||
+               (file.headerDIB.bitCount == 32 && expectedA != file.image[i][j].a)
                )
             {
                 std::cout << "Error, pixel at " << i << ' ' << j
-                          << " is: " << int(file.image[i][j].r) << ' '<<  int(file.image[i][j].g) << ' ' << int(file.image[i][j].b)
-                          << " but should be: " << expectedR << ' ' << expectedG << ' ' << expectedB << std::endl;
+                          << " is: " << int(file.image[i][j].r) << ' '<<  int(file.image[i][j].g) << ' ' << int(file.image[i][j].b) << ' ' << int(file.image[i][j].a)
+                          << " but should be: " << expectedR << ' ' << expectedG << ' ' << expectedB << ' ' << expectedA << std::endl;
                 fclose(expected);
                 exit(1);
             }
@@ -81,9 +84,11 @@ void TEST_loading()
     TEST_loadingHelp("test_4bit_1");
 
     TEST_loadingHelp("test_8bit_1");
+
+    TEST_loadingHelp("test_24bit_1");
+
+    TEST_loadingHelp("test_32bit_1");
 }
-
-
 
 void T_startTests()
 {
@@ -95,7 +100,7 @@ void T_startTests()
     std::cout << "------------------" << std::endl << std::endl;
 }
 
-int T_imageToFile(std::string filename, struct pixel3 **image, int width, int height)
+int T_imageToFile(std::string filename, struct pixel4 **image, int width, int height)
 {
     FILE *f = fopen(filename.c_str(), "wt");
     if(f == nullptr) return 1;

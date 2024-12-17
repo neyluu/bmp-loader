@@ -66,16 +66,17 @@ int BMP::load(const std::string& filename)
     }
 
     // TODO TMP
-    if(headerDIB.compression != 0)
-    {
-        fclose(f);
-        return 1;
-    }
+//    if(headerDIB.compression != 0)
+//    {
+//        std::cout << "Used compression: " << headerDIB.compression << std::endl;
+//        fclose(f);
+//        return 69;
+//    }
 
-    image = new struct pixel3*[headerDIB.height];
+    image = new struct pixel4*[headerDIB.height];
     for(int i = 0; i < headerDIB.height; i++)
     {
-        image[i] = new struct pixel3[headerDIB.width];
+        image[i] = new struct pixel4[headerDIB.width];
     }
 
     switch (headerDIB.bitCount) {
@@ -96,6 +97,9 @@ int BMP::load(const std::string& filename)
             break;
         case 24:
             loadImage24(file, *this);
+            break;
+        case 32:
+            loadImage32(file, *this);
             break;
         default:
             break;
@@ -191,6 +195,9 @@ void BMP::printImage()
 
             std::cout.width( 3 );
             std::cout << int(image[i][j].b) << ' ';
+
+            std::cout.width(3);
+            std::cout << int(image[i][j].a) << ' ';
 
             std::cout << "| ";
         }

@@ -192,7 +192,29 @@ void loadImage24(FILE *f, BMP& data)
 }
 void loadImage32(FILE *f, BMP& data)
 {
+    uint8_t r, g, b, a;
 
+    int loadedRows = 0;
+    int i, change;
+    getDirection(data.headerDIB.height, i, change);
+
+    while(loadedRows++ < data.headerDIB.height)
+    {
+        for(int j = 0; j < data.headerDIB.width; j++)
+        {
+            fread(&b, 1, 1, f);
+            fread(&g, 1, 1, f);
+            fread(&r, 1, 1, f);
+            fread(&a, 1, 1, f);
+            data.image[i][j].r = r;
+            data.image[i][j].g = g;
+            data.image[i][j].b = b;
+            data.image[i][j].a = a;
+        }
+
+        fseek(f, calculatePadding(data.headerDIB.width * 4), SEEK_CUR);
+        i += change;
+    }
 }
 
 void readColorTable(FILE *f, BMP& data)

@@ -71,7 +71,7 @@ public:
     struct headerDIB headerDIB;
 
     struct pixel4* colorTable;
-    struct pixel3** image;
+    struct pixel4** image;
 
     BMP();
     ~BMP();

@@ -5,6 +5,6 @@
 #include "../bmp/bmp.h"
 
 void T_startTests();
-int T_imageToFile(std::string filename, struct pixel3 **image, int width, int height);
+int T_imageToFile(std::string filename, struct pixel4 **image, int width, int height);
 
 #endif //BMP_TO_ASCII_TESTS_H

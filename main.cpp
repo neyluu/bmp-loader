@@ -9,12 +9,12 @@ int main ()
 
     BMP file;
 
-//    int res = file.load("../images/8_2.bmp");
-    int res = file.load("../tests/test_images/test_8bit_1.bmp");
+    int res = file.load("../images/32_2.bmp");
+//    int res = file.load("../tests/test_images/test_24bit_1.bmp");
 //    int res = file.load("../images/1.bmp");
     if(res != 0)
     {
-        std::cout << "Loading failed!";
+        std::cout << "Loading failed! " << res;
         return 1;
     }
 
