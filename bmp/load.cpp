@@ -213,7 +213,7 @@ void readColorTable(FILE *f, BMP& data)
         data.colorTable[i].g = g;
         data.colorTable[i].b = b;
         data.colorTable[i].a = a;
-        std::cout << i << ". " << int(r) << ' ' << int(g) << ' ' << int(b) << ' ' << int(a) << std::endl;
+//        std::cout << i << ". " << int(r) << ' ' << int(g) << ' ' << int(b) << ' ' << int(a) << std::endl;
     }
 }
 

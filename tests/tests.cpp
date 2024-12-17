@@ -26,11 +26,66 @@ void TEST_calculatePadding()
     std::cout << "Test passed!" << std::endl;
 }
 
+void TEST_loadingHelp(std::string filename)
+{
+    std::cout << "Testing loading file: " << filename << std::endl;
+
+    std::string path = "../tests/test_images/";
+    std::string pathBMP = path + filename + ".bmp";
+
+    BMP file;
+    int res = file.load(pathBMP);
+    if(res != 0)
+    {
+        std::cout << "Error, loaded failed with error code: " << res << std::endl;
+        exit(1);
+    }
+
+    std::string pathTXT = path + filename + ".txt";
+    FILE *expected = fopen(pathTXT.c_str(), "rt");
+    if(expected == nullptr)
+    {
+        std::cout << "Error, file with expected values not found" << std::endl;
+        exit(1);
+    }
+
+    int expectedR, expectedG, expectedB;
+
+    for(int i = 0; i < file.headerDIB.height; i++)
+    {
+        for(int j = 0; j < file.headerDIB.width; j++)
+        {
+            fscanf(expected, "%d %d %d\n", &expectedR, &expectedG, &expectedB);
+            if(expectedR != file.image[i][j].r ||
+               expectedG != file.image[i][j].g ||
+               expectedB != file.image[i][j].b
+               )
+            {
+                std::cout << "Error, pixel at " << i << ' ' << j
+                          << " is: " << int(file.image[i][j].r) << ' '<<  int(file.image[i][j].g) << ' ' << int(file.image[i][j].b)
+                          << " but should be: " << expectedR << ' ' << expectedG << ' ' << expectedB << std::endl;
+                exit(1);
+            }
+        }
+    }
+
+    std::cout << "Test passed!" << std::endl;
+}
+
+void TEST_loading()
+{
+    TEST_loadingHelp("test_1bit_1");
+    TEST_loadingHelp("test_1bit_2");
+}
+
+
+
 void T_startTests()
 {
     std::cout << "--- Unit Tests ---" << std::endl;
 
     TEST_calculatePadding();
+    TEST_loading();
 
     std::cout << "------------------" << std::endl << std::endl;
 }
