@@ -64,11 +64,12 @@ void TEST_loadingHelp(std::string filename)
                 std::cout << "Error, pixel at " << i << ' ' << j
                           << " is: " << int(file.image[i][j].r) << ' '<<  int(file.image[i][j].g) << ' ' << int(file.image[i][j].b)
                           << " but should be: " << expectedR << ' ' << expectedG << ' ' << expectedB << std::endl;
+                fclose(expected);
                 exit(1);
             }
         }
     }
-
+    fclose(expected);
     std::cout << "Test passed!" << std::endl;
 }
 
@@ -76,6 +77,10 @@ void TEST_loading()
 {
     TEST_loadingHelp("test_1bit_1");
     TEST_loadingHelp("test_1bit_2");
+
+    TEST_loadingHelp("test_4bit_1");
+
+    TEST_loadingHelp("test_8bit_1");
 }
 
 
