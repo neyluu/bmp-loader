@@ -1,12 +1,8 @@
-#include <cstdio>
-#include <iostream>
-#include <cstdlib>
+#include <cstring>
 #include <cmath>
 
 #include "bmp.h"
-#include "load.h"
 
-#include <cstring>
 
 BMP::BMP()
 {
@@ -29,7 +25,6 @@ BMP::BMP()
     colorTable = nullptr;
     image = nullptr;
 }
-
 BMP::~BMP()
 {
     if(image != nullptr)
@@ -42,107 +37,6 @@ BMP::~BMP()
     }
 
     delete[] colorTable;
-}
-
-int BMP::load(const std::string& filename)
-{
-    FILE *f = fopen(filename.c_str(), "rb");
-    if(f == nullptr) return 1;
-    file = f;
-
-    int res;
-
-    res = loadHeaderFile();
-    if(res == 1)
-    {
-        fclose(file);
-        return 2;
-    }
-    res = loadHeaderDIB();
-    if(res == 1)
-    {
-        fclose(file);
-        return 3;
-    }
-
-    // TODO TMP
-//    if(headerDIB.compression != 0)
-//    {
-//        std::cout << "Used compression: " << headerDIB.compression << std::endl;
-//        fclose(f);
-//        return 69;
-//    }
-
-    image = new struct pixel4*[headerDIB.height];
-    for(int i = 0; i < headerDIB.height; i++)
-    {
-        image[i] = new struct pixel4[headerDIB.width];
-    }
-
-    switch (headerDIB.bitCount) {
-        case 1:
-            loadImage1 (file, *this);
-            break;
-        case 2:
-            loadImage2 (file, *this);
-            break;
-        case 4:
-            loadImage4 (file, *this);
-            break;
-        case 8:
-            loadImage8 (file, *this);
-            break;
-        case 16:
-            loadImage16 (file, *this);
-            break;
-        case 24:
-            loadImage24(file, *this);
-            break;
-        case 32:
-            loadImage32(file, *this);
-            break;
-        default:
-            break;
-    }
-
-    fclose(file);
-    return 0;
-}
-
-int BMP::loadHeaderFile()
-{
-    int res;
-
-    res = fread(headerFile.signature, 1, 2, file);
-    if(res != 2) return 1;
-
-    res = fread(&headerFile.fileSize, 4, 1, file);
-    if(res != 1) return 1;
-
-    res = fread(headerFile.reserved, 4, 1, file);
-    if(res != 1) return 1;
-
-    res = fread(&headerFile.dataOffset, 4, 1, file);
-    if(res != 1) return 1;
-
-    return 0;
-}
-
-int BMP::loadHeaderDIB()
-{
-    int res = fread(&headerDIB, sizeof(struct headerDIB), 1, file);
-    if(res != 1) return 1;
-
-    const int headerFileSize = 14;
-    fseek(file, headerFileSize + headerDIB.size, SEEK_SET);
-
-    return 0;
-}
-
-int BMP::save(const std::string& filename)
-{
-
-    return 0;
 }
 
 void BMP::printHeader()
@@ -173,7 +67,8 @@ void BMP::printColorTable()
     {
         std::cout << i << ". "  << int(colorTable[i].r) << ' '
                                 << int(colorTable[i].g) << ' '
-                                << int(colorTable[i].b) << std::endl;
+                                << int(colorTable[i].b) << ' '
+                                << int(colorTable[i].a) << std::endl;
     }
     std::cout << std::endl;
 }
@@ -203,4 +98,10 @@ void BMP::printImage()
         }
         std::cout << std::endl;
     }
+}
+
+int BMP::colorTableSize()
+{
+    if(headerDIB.colorsUsed == 0) return int(pow(2, headerDIB.bitCount));
+    return headerDIB.colorsUsed;
 }

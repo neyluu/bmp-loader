@@ -17,6 +17,16 @@ struct pixel4
     uint8_t g;
     uint8_t b;
     uint8_t a;
+
+    bool operator==(const pixel4 &pixel) const
+    {
+        if(r == pixel.r && g == pixel.g && b == pixel.b && a == pixel.a) return true;
+        return false;
+    }
+    bool operator!=(const pixel4 &pixel) const
+    {
+        return !(*this == pixel);
+    }
 };
 
 struct headerFile
@@ -32,7 +42,7 @@ struct headerDIB
      * Library uses BITMAPINFOHEADER (40 bytes).
      * BMPs with BITMAPV2INFOHEADER, BITMAPV3INFOHEADER, BITMAPV4HEADER or BITMAPV5HEADER
      * are supported but only first 40 bytes of header is loaded and used,
-     * because this data is common for all of this headers.
+     * because this data is common for all of these headers.
      */
     int32_t size;
     int32_t width;
@@ -52,6 +62,8 @@ class BMP
 private:
     FILE *file;
 
+// === load.cpp ===
+
 // Function loading headerFile
 // OUTPUT:
 // errorCode
@@ -65,6 +77,38 @@ private:
 //  0 - OK
 //  1 - loading failed
     int loadHeaderDIB();
+
+    void loadImage1 ();
+    void loadImage2 ();
+    void loadImage4 ();
+    void loadImage8 ();
+    void loadImage16();
+    void loadImage24();
+    void loadImage32();
+
+    void readColorTable();
+    void getDirection(int height, int& i, int& change);
+
+// === save.cpp ===
+
+    int saveHeaderFile();
+    int saveHeaderDIB();
+    int saveColorTable();
+
+// Function returning color index in colorTable
+// INPUT
+// color - pixel that contains searched color
+// OUTPUT:
+// index - index of searched color
+// -1 - if color wasn't found
+    int getColorIndex(struct pixel4 color);
+
+    int saveImage1 ();
+    int saveImage8 ();
+
+// === bmp.cpp ===
+
+    int colorTableSize();
 public:
 
     struct headerFile headerFile;
@@ -76,6 +120,7 @@ public:
     BMP();
     ~BMP();
 
+// === load.cpp ===
 // Function loads BMP file
 // INPUT
 // filename - name or path to file to load
@@ -86,7 +131,15 @@ public:
 //  2 - loading headerFile failed
 //  3 - loading headerDIB failed
     int load(const std::string& filename);
-    int save(const std::string& filename);
+
+// === save.cpp ===
+// Function save BMP into filename given in parameter
+// INPUT
+// filename - name or path to file to save, if filename don`t ends with .bmp, it`s added automatically
+// OUTPUT:
+// errorCode
+//  0 - OK
+    int save(std::string filename);
 
 
     void printHeader();

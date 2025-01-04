@@ -1,41 +1,136 @@
-#include "load.h"
+#include <cmath>
+
+#include "bmp.h"
 #include "utils.h"
 
-void loadImage1 (FILE *f, BMP& data)
+int BMP::load(const std::string& filename)
 {
-    readColorTable(f, data);
-    fseek(f, data.headerFile.dataOffset, SEEK_SET);
+    FILE *f = fopen(filename.c_str(), "rb");
+    if(f == nullptr) return 1;
+    file = f;
+
+    int res;
+
+    res = loadHeaderFile();
+    if(res == 1)
+    {
+        fclose(file);
+        return 2;
+    }
+    res = loadHeaderDIB();
+    if(res == 1)
+    {
+        fclose(file);
+        return 3;
+    }
+
+    // TODO TMP
+    //    if(headerDIB.compression != 0)
+    //    {
+    //        std::cout << "Used compression: " << headerDIB.compression << std::endl;
+    //        fclose(f);
+    //        return 69;
+    //    }
+
+    image = new pixel4*[headerDIB.height];
+    for(int i = 0; i < headerDIB.height; i++)
+    {
+        image[i] = new pixel4[headerDIB.width];
+    }
+
+    switch (headerDIB.bitCount) {
+        case 1:
+            loadImage1 ();
+        break;
+        case 2:
+            loadImage2 ();
+        break;
+        case 4:
+            loadImage4 ();
+        break;
+        case 8:
+            loadImage8 ();
+        break;
+        case 16:
+            loadImage16 ();
+        break;
+        case 24:
+            loadImage24();
+        break;
+        case 32:
+            loadImage32();
+        break;
+        default:
+            break;
+    }
+
+    fclose(file);
+    return 0;
+}
+int BMP::loadHeaderFile()
+{
+    int res;
+
+    res = fread(headerFile.signature, 1, 2, file);
+    if(res != 2) return 1;
+
+    res = fread(&headerFile.fileSize, 4, 1, file);
+    if(res != 1) return 1;
+
+    res = fread(headerFile.reserved, 4, 1, file);
+    if(res != 1) return 1;
+
+    res = fread(&headerFile.dataOffset, 4, 1, file);
+    if(res != 1) return 1;
+
+    return 0;
+}
+int BMP::loadHeaderDIB()
+{
+    int res = fread(&headerDIB, sizeof(struct headerDIB), 1, file);
+    if(res != 1) return 1;
+
+    const int headerFileSize = 14;
+    fseek(file, headerFileSize + headerDIB.size, SEEK_SET);
+
+    return 0;
+}
+
+void BMP::loadImage1 ()
+{
+    readColorTable();
+    fseek(file, headerFile.dataOffset, SEEK_SET);
 
     uint8_t byte;
     int pixels[8];
 
     int loadedRows = 0;
     int row, col, change;
-    getDirection(data.headerDIB.height, row, change);
+    getDirection(headerDIB.height, row, change);
 
     int bytesPerRow;
-    int bitRest = data.headerDIB.width % 8;
+    int bitRest = headerDIB.width % 8;
     bool aligned; // true - every row need full X bytes, false - from last byte only few bits are needed
 
     if(bitRest == 0)
     {
         aligned = true;
-        bytesPerRow = data.headerDIB.width / 8;
+        bytesPerRow = headerDIB.width / 8;
     }
     else
     {
         aligned = false;
-        bytesPerRow = floor(data.headerDIB.width / 8) + 1;
+        bytesPerRow = floor(headerDIB.width / 8) + 1;
     }
 
-    while(loadedRows++ < data.headerDIB.height)
+    while(loadedRows++ < headerDIB.height)
     {
         int pixelsToSet;
         col = 0;
 
         for(int j = 0; j < bytesPerRow; j++)
         {
-            fread(&byte, 1, 1, f);
+            fread(&byte, 1, 1, file);
             splitByte(byte, pixels);
 
             if(j < bytesPerRow - 1 || aligned) pixelsToSet = 8;
@@ -43,21 +138,23 @@ void loadImage1 (FILE *f, BMP& data)
 
             for(int k = 0; k < pixelsToSet; k++)
             {
-                data.image[row][col].r = data.colorTable[pixels[k]].r;
-                data.image[row][col].g = data.colorTable[pixels[k]].g;
-                data.image[row][col].b = data.colorTable[pixels[k]].b;
+                image[row][col].r = colorTable[pixels[k]].r;
+                image[row][col].g = colorTable[pixels[k]].g;
+                image[row][col].b = colorTable[pixels[k]].b;
+                image[row][col].a = colorTable[pixels[k]].a;
+
                 col++;
             }
         }
 
-        fseek(f, calculatePadding(bytesPerRow), SEEK_CUR);
+        fseek(file, calculatePadding(bytesPerRow), SEEK_CUR);
         row += change;
     }
 }
-void loadImage2 (FILE *f, BMP& data)
+void BMP::loadImage2 ()
 {
-    readColorTable(f, data);
-    fseek(f, data.headerFile.dataOffset, SEEK_SET);
+    readColorTable();
+    fseek(file, headerFile.dataOffset, SEEK_SET);
 
     uint8_t byte;
     int pixel1, pixel2, pixel3, pixel4;
@@ -65,43 +162,43 @@ void loadImage2 (FILE *f, BMP& data)
 
     int loadedRows = 0;
     int i, change;
-    getDirection(data.headerDIB.height, i, change);
+    getDirection(headerDIB.height, i, change);
 
-    while(loadedRows++ < data.headerDIB.height)
+    while(loadedRows++ < headerDIB.height)
     {
         loadedBytes = 0;
-        for(int j = 0; j < data.headerDIB.width; j += 4)
+        for(int j = 0; j < headerDIB.width; j += 4)
         {
-            fread(&byte, 1, 1, f);
+            fread(&byte, 1, 1, file);
             loadedBytes++;
 
             splitByte(byte, &pixel1, &pixel2, &pixel3, &pixel4);
 
-            data.image[i][j + 0].r = data.colorTable[pixel1].r;
-            data.image[i][j + 0].g = data.colorTable[pixel1].g;
-            data.image[i][j + 0].b = data.colorTable[pixel1].b;
+            image[i][j + 0].r = colorTable[pixel1].r;
+            image[i][j + 0].g = colorTable[pixel1].g;
+            image[i][j + 0].b = colorTable[pixel1].b;
 
-            data.image[i][j + 1].r = data.colorTable[pixel2].r;
-            data.image[i][j + 1].g = data.colorTable[pixel2].g;
-            data.image[i][j + 1].b = data.colorTable[pixel2].b;
+            image[i][j + 1].r = colorTable[pixel2].r;
+            image[i][j + 1].g = colorTable[pixel2].g;
+            image[i][j + 1].b = colorTable[pixel2].b;
 
-            data.image[i][j + 2].r = data.colorTable[pixel3].r;
-            data.image[i][j + 2].g = data.colorTable[pixel3].g;
-            data.image[i][j + 2].b = data.colorTable[pixel3].b;
+            image[i][j + 2].r = colorTable[pixel3].r;
+            image[i][j + 2].g = colorTable[pixel3].g;
+            image[i][j + 2].b = colorTable[pixel3].b;
             
-            data.image[i][j + 3].r = data.colorTable[pixel4].r;
-            data.image[i][j + 3].g = data.colorTable[pixel4].g;
-            data.image[i][j + 3].b = data.colorTable[pixel4].b;
+            image[i][j + 3].r = colorTable[pixel4].r;
+            image[i][j + 3].g = colorTable[pixel4].g;
+            image[i][j + 3].b = colorTable[pixel4].b;
         }
 
-        fseek(f, calculatePadding(loadedBytes), SEEK_CUR);
+        fseek(file, calculatePadding(loadedBytes), SEEK_CUR);
         i += change;
     }
 }
-void loadImage4 (FILE *f, BMP& data)
+void BMP::loadImage4 ()
 {
-    readColorTable(f, data);
-    fseek(f, data.headerFile.dataOffset, SEEK_SET);
+    readColorTable();
+    fseek(file, headerFile.dataOffset, SEEK_SET);
 
     uint8_t byte = 0;
     int pixel1, pixel2;
@@ -109,137 +206,139 @@ void loadImage4 (FILE *f, BMP& data)
 
     int loadedRows = 0;
     int i, change;
-    getDirection(data.headerDIB.height, i, change);
+    getDirection(headerDIB.height, i, change);
 
-    while(loadedRows++ < data.headerDIB.height)
+    while(loadedRows++ < headerDIB.height)
     {
         loadedBytes = 0;
-        for(int j = 0; j < data.headerDIB.width; j += 2)
+        for(int j = 0; j < headerDIB.width; j += 2)
         {
-            fread(&byte, 1, 1, f);
+            fread(&byte, 1, 1, file);
             loadedBytes++;
 
             splitByte(byte, &pixel1, &pixel2);
 
-            data.image[i][j + 0].r = data.colorTable[pixel1].r;
-            data.image[i][j + 0].g = data.colorTable[pixel1].g;
-            data.image[i][j + 0].b = data.colorTable[pixel1].b;
+            image[i][j + 0].r = colorTable[pixel1].r;
+            image[i][j + 0].g = colorTable[pixel1].g;
+            image[i][j + 0].b = colorTable[pixel1].b;
+            image[i][j + 0].a = colorTable[pixel1].a;
 
-            data.image[i][j + 1].r = data.colorTable[pixel2].r;
-            data.image[i][j + 1].g = data.colorTable[pixel2].g;
-            data.image[i][j + 1].b = data.colorTable[pixel2].b;
+            image[i][j + 1].r = colorTable[pixel2].r;
+            image[i][j + 1].g = colorTable[pixel2].g;
+            image[i][j + 1].b = colorTable[pixel2].b;
+            image[i][j + 1].a = colorTable[pixel2].a;
+
             byte = 0;
         }
 
-        fseek(f, calculatePadding(loadedBytes), SEEK_CUR);
+        fseek(file, calculatePadding(loadedBytes), SEEK_CUR);
         i += change;
     }
 }
-void loadImage8 (FILE *f, BMP& data)
+void BMP::loadImage8 ()
 {
-    readColorTable(f, data);
-    fseek(f, data.headerFile.dataOffset, SEEK_SET);
+    readColorTable();
+    fseek(file, headerFile.dataOffset, SEEK_SET);
 
     uint8_t index;
 
     int loadedRows = 0;
     int i, change;
-    getDirection(data.headerDIB.height, i, change);
+    getDirection(headerDIB.height, i, change);
 
-    while(loadedRows++ < data.headerDIB.height)
+    while(loadedRows++ < headerDIB.height)
     {
-        for(int j = 0; j < data.headerDIB.width; j++)
+        for(int j = 0; j < headerDIB.width; j++)
         {
-            fread(&index, 1, 1, f);
+            fread(&index, 1, 1, file);
 
-            data.image[i][j].r = data.colorTable[index].r;
-            data.image[i][j].g = data.colorTable[index].g;
-            data.image[i][j].b = data.colorTable[index].b;
+            image[i][j].r = colorTable[index].r;
+            image[i][j].g = colorTable[index].g;
+            image[i][j].b = colorTable[index].b;
+            image[i][j].a = colorTable[index].a;
             index = 0;
         }
 
-        fseek(f, calculatePadding(data.headerDIB.width), SEEK_CUR);
+        fseek(file, calculatePadding(headerDIB.width), SEEK_CUR);
         i += change;
     }
 }
-void loadImage16(FILE *f, BMP& data)
+void BMP::loadImage16()
 {
 
 }
-void loadImage24(FILE *f, BMP& data)
+void BMP::loadImage24()
 {
     uint8_t r, g, b;
 
     int loadedRows = 0;
     int i, change;
-    getDirection(data.headerDIB.height, i, change);
+    getDirection(headerDIB.height, i, change);
 
-    while(loadedRows++ < data.headerDIB.height)
+    while(loadedRows++ < headerDIB.height)
     {
-        for(int j = 0; j < data.headerDIB.width; j++)
+        for(int j = 0; j < headerDIB.width; j++)
         {
-            fread(&b, 1, 1, f);
-            fread(&g, 1, 1, f);
-            fread(&r, 1, 1, f);
-            data.image[i][j].r = r;
-            data.image[i][j].g = g;
-            data.image[i][j].b = b;
+            fread(&b, 1, 1, file);
+            fread(&g, 1, 1, file);
+            fread(&r, 1, 1, file);
+            image[i][j].r = r;
+            image[i][j].g = g;
+            image[i][j].b = b;
         }
 
-        fseek(f, calculatePadding(data.headerDIB.width * 3), SEEK_CUR);
+        fseek(file, calculatePadding(headerDIB.width * 3), SEEK_CUR);
         i += change;
     }
 }
-void loadImage32(FILE *f, BMP& data)
+void BMP::loadImage32()
 {
     uint8_t r, g, b, a;
 
     int loadedRows = 0;
     int i, change;
-    getDirection(data.headerDIB.height, i, change);
+    getDirection(headerDIB.height, i, change);
 
-    while(loadedRows++ < data.headerDIB.height)
+    while(loadedRows++ < headerDIB.height)
     {
-        for(int j = 0; j < data.headerDIB.width; j++)
+        for(int j = 0; j < headerDIB.width; j++)
         {
-            fread(&b, 1, 1, f);
-            fread(&g, 1, 1, f);
-            fread(&r, 1, 1, f);
-            fread(&a, 1, 1, f);
-            data.image[i][j].r = r;
-            data.image[i][j].g = g;
-            data.image[i][j].b = b;
-            data.image[i][j].a = a;
+            fread(&b, 1, 1, file);
+            fread(&g, 1, 1, file);
+            fread(&r, 1, 1, file);
+            fread(&a, 1, 1, file);
+            image[i][j].r = r;
+            image[i][j].g = g;
+            image[i][j].b = b;
+            image[i][j].a = a;
         }
 
-        fseek(f, calculatePadding(data.headerDIB.width * 4), SEEK_CUR);
+        fseek(file, calculatePadding(headerDIB.width * 4), SEEK_CUR);
         i += change;
     }
 }
 
-void readColorTable(FILE *f, BMP& data)
+void BMP::readColorTable()
 {
     unsigned char r, g, b, a;
-    int colors;
-    if(data.headerDIB.colorsUsed == 0) colors = int(pow(2, data.headerDIB.bitCount));
-    else colors = data.headerDIB.colorsUsed;
-    data.colorTable = new struct pixel4[colors];
+    int colors = colorTableSize();
+    colorTable = new struct pixel4[colors];
 
     for(int i = 0; i < colors; i++)
     {
-        fread(&b, 1, 1, f);
-        fread(&g, 1, 1, f);
-        fread(&r, 1, 1, f);
-        fread(&a, 1, 1, f);
-        data.colorTable[i].r = r;
-        data.colorTable[i].g = g;
-        data.colorTable[i].b = b;
-        data.colorTable[i].a = a;
+        fread(&b, 1, 1, file);
+        fread(&g, 1, 1, file);
+        fread(&r, 1, 1, file);
+        fread(&a, 1, 1, file);
+        colorTable[i].r = r;
+        colorTable[i].g = g;
+        colorTable[i].b = b;
+        colorTable[i].a = a;
 //        std::cout << i << ". " << int(r) << ' ' << int(g) << ' ' << int(b) << ' ' << int(a) << std::endl;
     }
 }
 
-void getDirection(int height, int& i, int& change)
+void BMP::getDirection(int height, int& i, int& change)
 {
     if(height < 0)
     {
