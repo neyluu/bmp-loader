@@ -12,7 +12,7 @@ int main ()
 
     // int res = file.load("../images/32_2.bmp");
 //    int res = file.load("../tests/test_images/test_24bit_1.bmp");
-    int res = file.load("../images/8.bmp");
+    int res = file.load("../images/bmp_24.bmp");
     if(res != 0)
     {
         std::cout << "Loading failed! " << res;
@@ -20,8 +20,8 @@ int main ()
     }
 
     file.printHeader();
-    file.printColorTable();
-    file.printImage();
+    // file.printColorTable();
+    // file.printImage();
 
     // T_imageToFile("../images/test_output.txt", file.image, file.headerDIB.width, file.headerDIB.height);
 

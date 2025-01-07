@@ -105,6 +105,7 @@ private:
 
     int saveImage1 ();
     int saveImage8 ();
+    int saveImage24();
 
 // === bmp.cpp ===
 

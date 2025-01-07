@@ -38,6 +38,9 @@ int BMP::save(std::string filename)
             saveColorTable();
             saveImage8();
             break;
+        case 24:
+            saveImage24();
+            break;
         default:
             break;
     }
@@ -111,7 +114,7 @@ int BMP::saveImage8 ()
 {
     int res;
 
-    for(int i = 0; i < headerDIB.height; i++)
+    for(int i = headerDIB.height - 1; i >= 0; i--)
     {
         int savedBytes = 0;
         for(int j = 0; j < headerDIB.width; j++)
@@ -131,9 +134,31 @@ int BMP::saveImage8 ()
             savedBytes++;
         }
 
-        res = fwrite(0, 1, calculatePadding(savedBytes), file);
-        if(res != calculatePadding(savedBytes)) return 1;
+        const int padding = calculatePadding(savedBytes);
+        res = fwrite(0, 1, padding, file);
+        if(res != padding) return 1;
     }
 
+    return 0;
+}
+int BMP::saveImage24()
+{
+    int res;
+    for(int i = headerDIB.height - 1; i >= 0; i--)
+    {
+        for(int j = 0; j < headerDIB.width; j++)
+        {
+            res = fwrite(&image[i][j].b, 1, 1, file);
+            if(res != 1) return 1;
+            res = fwrite(&image[i][j].g, 1, 1, file);
+            if(res != 1) return 1;
+            res = fwrite(&image[i][j].r, 1, 1, file);
+            if(res != 1) return 1;
+        }
+
+        int padding = calculatePadding(headerDIB.width * 3);
+        res = fwrite(0, 1, padding, file);
+        if(res != padding) return 1;
+    }
     return 0;
 }
