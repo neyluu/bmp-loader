@@ -24,6 +24,9 @@ BMP::BMP()
     headerDIB.colorsImportant = 0;
     colorTable = nullptr;
     image = nullptr;
+
+    file = nullptr;
+    actualFileSize = 0;
 }
 BMP::~BMP()
 {

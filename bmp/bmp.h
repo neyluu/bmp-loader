@@ -61,6 +61,7 @@ class BMP
 {
 private:
     FILE *file;
+    size_t actualFileSize;
 
 // === load.cpp ===
 
@@ -94,8 +95,10 @@ private:
     int saveHeaderFile();
     int saveHeaderDIB();
     int saveColorTable();
+    int updateFileSize();
+    void prepareHeaders();
 
-// Function returning color index in colorTable
+// Function returning color index from colorTable
 // INPUT
 // color - pixel that contains searched color
 // OUTPUT:
@@ -104,8 +107,12 @@ private:
     int getColorIndex(struct pixel4 color);
 
     int saveImage1 ();
+    int saveImage2 ();
+    int saveImage4 ();
     int saveImage8 ();
+    int saveImage16();
     int saveImage24();
+    int saveImage32();
 
 // === bmp.cpp ===
 

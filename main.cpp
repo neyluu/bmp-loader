@@ -12,7 +12,8 @@ int main ()
 
     // int res = file.load("../images/32_2.bmp");
 //    int res = file.load("../tests/test_images/test_24bit_1.bmp");
-    int res = file.load("../images/bmp_24.bmp");
+    int res = file.load("../images/32_1.bmp");
+    // int res = file.load("test.bmp");
     if(res != 0)
     {
         std::cout << "Loading failed! " << res;
