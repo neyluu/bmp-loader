@@ -144,9 +144,49 @@ int BMP::getColorIndex(struct pixel4 color)
     return -1;
 }
 
+uint8_t BMP::joinByte(int row, int col, int pixels)
+{
+    uint8_t byte = 0;
+
+    int bits = col + 8 > headerDIB.width ? headerDIB.width - col : 8;
+
+    for(int i = 0; i < bits; i++)
+    {
+        int bitValue = getColorIndex(image[row][col + i]);
+        if(bitValue) byte |= (1 << (7 - i));
+        else byte &= ~(1 << i);
+    }
+
+    for(int i = 7; i >= 0; i--)
+        std::cout << ((byte >> i) & 1);
+    std::cout << std::endl;
+
+
+    return byte;
+}
+
 int BMP::saveImage1()
 {
+    int res;
 
+    for(int i = headerDIB.height - 1; i >= 0; i--)
+    {
+        int savedBytes = 0;
+        for(int j = 0; j < headerDIB.width; j += 8)
+        {
+            uint8_t byte = joinByte(i, j, 8);
+            res = fwrite(&byte, sizeof(uint8_t), 1, file);
+            if(res != 1) return 1;
+
+            savedBytes++;
+        }
+        std::cout << std::endl;
+
+        uint32_t dummy = 0;
+        const int padding = calculatePadding(savedBytes);
+        res = fwrite(&dummy, 1, padding, file);
+        if(res != padding) return 1;
+    }
     return 0;
 }
 int BMP::saveImage2()
@@ -184,7 +224,8 @@ int BMP::saveImage8 ()
         }
 
         const int padding = calculatePadding(savedBytes);
-        res = fwrite(0, 1, padding, file);
+        int dummy = 0;
+        res = fwrite(&dummy, 1, padding, file);
         if(res != padding) return 1;
     }
 

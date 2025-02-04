@@ -5,6 +5,7 @@
 
 int main ()
 {
+
     T_startTests();
 
     BMP file;
@@ -12,7 +13,7 @@ int main ()
 
     // int res = file.load("../images/32_2.bmp");
 //    int res = file.load("../tests/test_images/test_24bit_1.bmp");
-    int res = file.load("../images/32_1.bmp");
+    int res = file.load("../images/1_20x20.bmp");
     // int res = file.load("test.bmp");
     if(res != 0)
     {

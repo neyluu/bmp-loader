@@ -65,8 +65,15 @@ void BMP::printHeader()
 
 void BMP::printColorTable()
 {
+    if(headerDIB.bitCount > 8 )
+    {
+        std::cout << "Color table is not available for this file" << std::endl;
+        return;
+    }
     std::cout << "Color table:" << std::endl;
-    for(int i = 0; i < headerDIB.colorsUsed; i++)
+    int colors = colorTableSize();
+
+    for(int i = 0; i < colors; i++)
     {
         std::cout << i << ". "  << int(colorTable[i].r) << ' '
                                 << int(colorTable[i].g) << ' '

@@ -97,6 +97,7 @@ private:
     int saveColorTable();
     int updateFileSize();
     void prepareHeaders();
+    uint8_t joinByte(int row, int col, int pixels);
 
 // Function returning color index from colorTable
 // INPUT
